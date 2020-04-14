@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { FormBuilder, Validators, FormGroup } from '@angular/forms';
-import { HttpClient } from "@angular/common/http";
+import { HttpClient, HttpHeaders } from "@angular/common/http";
 
 @Injectable({
   providedIn: 'root'
@@ -41,5 +41,33 @@ var body = {
   Password: this.formModel.value.Passwords.Password
 };
 return this.http.post(this.BaseURI+ '/User/Register',body);
+  }
+  userAuthentication(userName, password) {
+    var res = "username=" + userName + "&password=" + password + "&grant_type=password";
+    var reqHeader = new HttpHeaders({ 'Content-Type': 'application/x-www-urlencoded','No-Auth':'True' });
+    return this.http.post(this.BaseURI + '/token', res, { headers: reqHeader });
+  }
+  getUserProfile(){
+    
+    return this.http.get(this.BaseURI+'/GetUserClaims');
+  }
+
+  getAllRoles() {
+    var reqHeader = new HttpHeaders({ 'No-Auth': 'True' });
+    return this.http.get(this.BaseURI + '/api/GetAllRoles', { headers: reqHeader });
+  }
+
+
+  roleMatch(allowedRoles): boolean {
+    var isMatch = false;
+    var userRoles: string[] = JSON.parse(localStorage.getItem('userToken'));
+    allowedRoles.forEach(element => {
+      if (userRoles.indexOf(element) > -1) {
+        isMatch = true;
+        return false;
+      }
+    });
+    return isMatch;
+
   }
 }
